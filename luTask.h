@@ -17,16 +17,38 @@ using namespace std;
 class Task {
 private:
     string content;
-    string initDate;
-    string finishDate;
+    Date initDate;
+    Date finishDate;
     bool done;
 public: 
+		Task(): content(""), initDate.setCurrentDate(), done=false {}
+		Task(const string content) {
+				this->content=content;
+				this->initDate.setCurrentDate();
+				this->done=false;
+		}
+		inline string getContent() const {return this->content;}
+		inline Date getInitDate() const {return this->initDate;}
+		inline Date getFinishDate() const {return this->finishDate;}
+		inline void setContent(const string content) {this->content=content;}
+
+		inline void finish() {finishDate.setCurrentDate(); done=true;}
 };
 
-class Quadro {
-
+class List {
 private:
+		string name;
+		Task *tasksToDo;
+		Task *tasksDone;
+		unsigned numTasksToDo;
+		unsigned numTasksDone;
+public:
+		
+		
+}
 
+class Quadro {
+private:
 
 };
 
