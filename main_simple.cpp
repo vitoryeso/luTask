@@ -24,6 +24,7 @@ int main(void) {
     while(!end) {
         printOptions();
         cin >> cmd;
+        cin.ignore();
         switch(cmd) {
             case ADD_LIST:
                 B.createList();
@@ -57,5 +58,6 @@ unsigned selectList() {
     cerr << "Type the number of the list: ";
     unsigned prov;
     cin >> prov;
+    cin.ignore();
     return prov;
 }
