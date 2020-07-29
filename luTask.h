@@ -11,8 +11,7 @@
 
 #include <string>
 #include <vector>
-#include <luUtils.h>
-
+#include <luutils.h>
 
 using namespace std;
 
@@ -37,10 +36,14 @@ public:
 	inline string getTag() const {return this->tag;}
 	inline Date getInitDate() const {return this->initDate;}
 	inline Date getFinishDate() const {return this->finishDate;}
+    inline bool isDone() const {return this->done;}
 	inline void setContent(const string content) {this->content=content;}
 	inline void setTag(const string tag) {this->tag=tag;}
 
 	inline void finish() {finishDate.setCurrentDate(); done=true;}
+
+    void printTask() const;
+    void typeTask();
 };
 
 // this class get all tasks pending and finished. the idea is separate pending and finished using sort
@@ -50,22 +53,34 @@ private:
 	vector<Task> tasks;
 public:
 	TaskList(): name("") {};
+    TaskList(const string name) {this->name=name;}
 
     inline string getName() const {return this->name;}
     inline Task getTask(const unsigned i) const {return this->tasks.at(i);}
 
-	inline void addTask(const Task& T) {tasks.push_back(T);}
+	inline void addTask(const string content, const string tag) {tasks.push_back(Task(content, tag));}
+    inline void addTask() {tasks.push_back(Task()); tasks.back().typeTask();}
+
+    void finishTask();
 	inline void finishTask(const unsigned i) {tasks.at(i).finish();}
     
     void sortByDone();
-    unsigned getLastDone() const;
-    void sortByTag();
-    void sortByInitDate();    
+    //unsigned getLastDone() const;
+    //void sortByTag();
+    //void sortByInitDate();    
+
+    void printList() const;
 };
 
-class Quadro {
+class Board {
 private:
-
+    vector<TaskList> lists;
+public:
+    
+    inline void createList(const string name) {this->lists.push_back(TaskList(name));}
+    void createList();
+    inline void removeList(const unsigned i) {this->lists.erase(lists.begin() + i);}
+    inline TaskList getList(const unsigned i) {return this->lists.at(i);} 
 };
 
 
