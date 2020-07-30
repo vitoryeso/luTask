@@ -37,12 +37,32 @@ void TaskList::sortByDone() {
     }
 }
 
+void TaskList::addTask() {
+    Task prov;
+    this->tasks.push_back(prov);
+    this->tasks.back().typeTask();
+}
+
 void TaskList::printList() const {
-    for(unsigned i=0; i<this->tasks.size(); i++) {
-        cout << (i + 1) << ": ";
-        this->tasks[i].printTask();
-        cout << endl;    
+    if(this->tasks.size() == 0) {
+        cerr << "Empty list!\n";
+        return;
     }
+    else {
+        for(unsigned i=0; i<this->tasks.size(); i++) {
+            cout << (i + 1) << ": ";
+            this->tasks[i].printTask();
+            cout << endl;    
+        }
+    }
+}
+
+void TaskList::removeTask() {
+    cerr << "Type the idx of the task to remove: ";
+    unsigned idx;
+    cin >> idx;
+    cin.ignore();
+    removeTask(idx);
 }
 
 void Board::createList() {
@@ -50,4 +70,29 @@ void Board::createList() {
     string name;
     getline(cin, name);
     this->lists.push_back(TaskList(name)); 
+}
+
+void Board::removeList() {
+    cerr << "Type the idx of the list to remove: ";
+    unsigned idx;
+    cin >> idx;
+    cin.ignore();
+    removeList(idx);
+}
+
+void Board::showLists() const {
+    cout << "@@ BOARD @@\n\t";
+    if(getNumLists() == 0) {
+        cerr << "Empty board!\n\t";
+        return;
+    } 
+    else {
+        for(unsigned i=0; i<this->lists.size() - 1; i++){
+            cout << "list " << (i + 1) << ":\n\t\t";
+            this->lists[i].printList();
+            cout << endl;
+        }
+        cout << "list " << this->lists.size() - 1 << ":\n\t\t";
+        this->lists[this->lists.size() - 1].printList();
+    }
 }

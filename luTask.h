@@ -56,10 +56,13 @@ public:
     TaskList(const string name) {this->name=name;}
 
     inline string getName() const {return this->name;}
-    inline Task getTask(const unsigned i) const {return this->tasks.at(i);}
+    inline Task& getTask(const unsigned i) {return this->tasks.at(i);} // returning by reference
 
 	inline void addTask(const string content, const string tag) {tasks.push_back(Task(content, tag));}
-    inline void addTask() {tasks.push_back(Task()); tasks.back().typeTask();}
+    void addTask();
+
+    inline void removeTask(const unsigned i) {tasks.erase(tasks.begin() + i);}
+    void removeTask();
 
     void finishTask();
 	inline void finishTask(const unsigned i) {tasks.at(i).finish();}
@@ -77,10 +80,13 @@ private:
     vector<TaskList> lists;
 public:
     
+    inline size_t getNumLists() const {return this->lists.size();}
     inline void createList(const string name) {this->lists.push_back(TaskList(name));}
     void createList();
     inline void removeList(const unsigned i) {this->lists.erase(lists.begin() + i);}
-    inline TaskList getList(const unsigned i) {return this->lists.at(i);} 
+    void removeList();
+    inline TaskList& getList(const unsigned i) {return this->lists.at(i);} // returning by reference
+    void showLists() const;
 };
 
 

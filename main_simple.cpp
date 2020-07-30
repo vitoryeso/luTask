@@ -3,7 +3,7 @@
 
 using namespace std;
 
-enum {
+enum cmd{
     EXIT=-1,
     ADD_LIST=1,
     SELECT_LIST,
@@ -11,7 +11,7 @@ enum {
     REMOVE_LIST,
     REMOVE_TASK,
     FINISH_TASK
-}cmd;
+};
 
 void printOptions();
 unsigned selectList();
@@ -21,8 +21,10 @@ int main(void) {
     bool end=false;
     int cmd;
     unsigned selectedList;
+    printOptions();
     while(!end) {
-        printOptions();
+        if(B.getNumLists() > 0) B.showLists();
+        cerr << "Type the option: ";
         cin >> cmd;
         cin.ignore();
         switch(cmd) {
@@ -34,6 +36,12 @@ int main(void) {
                 break;
             case ADD_TASK:
                 B.getList(selectedList).addTask();
+                break;
+            case REMOVE_LIST:
+                B.removeList();
+                break;
+            case REMOVE_TASK:
+                B.getList(selectedList).removeTask();
                 break;
             case FINISH_TASK:
                 B.getList(selectedList).finishTask();
@@ -51,6 +59,8 @@ void printOptions() {
     cerr << "1: add list\n";
     cerr << "2: select list\n";
     cerr << "3: add task\n";
+    cerr << "4: remove list\n";
+    cerr << "5: remove task\n";
     cerr << "6: finish task\n";
 }
 
