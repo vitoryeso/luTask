@@ -16,6 +16,7 @@ void Task::typeTask() {
     getline(cin, this->content);
     cerr << "Type the tag: ";
     getline(cin, this->tag);
+    this->initDate.setCurrentDate();
 }
 
 void TaskList::finishTask() {
