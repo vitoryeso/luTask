@@ -14,9 +14,12 @@ void Task::save(ostream& X) const {
 
 bool Task::read(istream& X) {
     string prov;
-    getline(X, prov, '\"');
-    cout << prov << endl;
+    getline(X, prov, '"'); // discarting first quotation marks
+    cout << "AAAAAAAAAAAAAAAAAAAAA" << endl;
 
+    string prov2;
+    getline(X, prov2, '"');
+    cout << prov2 << endl;
 
 
     return true;
