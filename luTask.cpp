@@ -1,14 +1,25 @@
 #include "luTask.h"
+#include <string>
 #include <iostream>
 
 using namespace std;
 
-void Task::printTask() const {
-    cout << "\"" << this->content << "\";";
-    cout << "#" << this->tag << ";";
-    cout << this->initDate << ";";
-    if(this->done) cout << "finished;" << this->finishDate << ";";
-    else cout << "pending;";
+void Task::save(ostream& X) const {
+    X << "\"" << this->content << "\";";
+    X << "#" << this->tag << ";";
+    X << this->initDate << ";";
+    if(this->done) X << "finished;" << this->finishDate << ";";
+    else X << "pending;";
+}
+
+bool Task::read(istream& X) {
+    string prov;
+    getline(X, prov, '\"');
+    cout << prov << endl;
+
+
+
+    return true;
 }
 
 void Task::typeTask() {

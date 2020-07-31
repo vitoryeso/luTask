@@ -11,6 +11,7 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 #include <luUtils.h>
 
 using namespace std;
@@ -42,9 +43,17 @@ public:
 
 	inline void finish() {finishDate.setCurrentDate(); done=true;}
 
-    void printTask() const;
+    //file options
+    void save(ostream& X) const;
+    bool read(istream& X);
+
+    //user input options
+    void printTask() const {save(cout);};
     void typeTask();
 };
+
+inline ostream& operator<<(ostream& X, const Task& T) {T.save(X); return X;}
+inline istream& operator>>(istream& X, Task& T) {if(&X == &cin) T.typeTask(); else if(!T.read(X)) cerr << "Invalid File!\n"; return X;}
 
 // this class get all tasks pending and finished. the idea is separate pending and finished using sort
 class TaskList {
