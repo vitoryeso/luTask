@@ -15,12 +15,21 @@ void Task::save(ostream& X) const {
 bool Task::read(istream& X) {
     string prov;
     getline(X, prov, '"'); // discarting first quotation marks
-    cout << "AAAAAAAAAAAAAAAAAAAAA" << endl;
+    if(prov != "") return false;
+    getline(X, prov, '"');
+    this->content = prov;
 
-    string prov2;
-    getline(X, prov2, '"');
-    cout << prov2 << endl;
+    getline(X, prov, '#');
+    if(prov != ";") return false;
+    getline(X, prov, ';');
+    this->tag = prov;
 
+    Date Dprov;
+    if(!Dprov.read(X)) {
+        cerr << "deu errado ler a data" << endl;
+        return false;        
+    }   
+    cout << Dprov << endl;
 
     return true;
 }
