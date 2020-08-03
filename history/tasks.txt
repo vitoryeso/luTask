@@ -1,1 +1,1 @@
-"terminar o i/o do task managger";#luTask;31-07-2020;pending;"terminar o i/o do task managger";#luTask;31-07-2020;pending;
+"terminar o i/o do task managger";#luTask;3-8-2020;finished;3-8-2020;

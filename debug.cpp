@@ -14,6 +14,7 @@ int main(void) {
     cin.ignore();
     if(!save) {
         Task T("terminar o i/o do task managger", "luTask");
+        T.finish();
         myfile.open(file_path, fstream::in | fstream::out | fstream::app);
         myfile << T;
         myfile.close();
@@ -22,21 +23,9 @@ int main(void) {
         Task T;
         myfile.open(file_path, fstream::in | fstream::out | fstream::app);
         if(!T.read(myfile)) cout << "deu errado" << endl;
+        else cout << T << endl;
         myfile.close();
     }
-    fstream provfile;
-    provfile.open("history/prov.txt", fstream::in);
-    int num;
-    int c;
-    string numstr;
-    c = provfile.peek();
-    if(isdigit(c)) cout << " eh um digitooooo " << endl;
-    else cout << "nao eh um digito" << endl;
-    char cc = c;
-    cout << "cc: " << cc << endl;
-    provfile >> num;
-    cout << "num: " << num << endl;
 
-    provfile.close();
     return 0;
 }

@@ -16,22 +16,30 @@ bool Task::read(istream& X) {
     string prov;
     getline(X, prov, '"'); // discarting first quotation marks
     if(prov != "") return false;
-    getline(X, prov, '"');
+    getline(X, prov, '"'); // reading content
     this->content = prov;
 
     getline(X, prov, '#');
     if(prov != ";") return false;
-    getline(X, prov, ';');
+    getline(X, prov, ';'); // reading tag
     this->tag = prov;
 
     Date Dprov;
-    if(!Dprov.read(X)) {
-        cerr << "deu errado ler a data" << endl;
-        return false;        
-    }   
-    cout << Dprov << endl;
+    if(!Dprov.read(X)) return false; // reading init date
+    this->initDate = Dprov;
 
-    return true;
+    getline(X, prov, ';'); // reading done
+    if(prov == "pending") {
+        this->done = false;
+        return true;
+    }
+    if(prov == "finished") {
+        this->done = true;
+        if(!Dprov.read(X)) return false;    
+        this->finishDate = Dprov;
+        return true;    
+    }
+    return false;
 }
 
 void Task::typeTask() {
