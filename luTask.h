@@ -81,8 +81,18 @@ public:
     //void sortByTag();
     //void sortByInitDate();    
 
-    void printList() const;
+    // file options
+    void save(ostream& X) const;
+    bool read(istream& X);
+
+    // user input options
+    void printList() const {save(cout);};
+    void typeList();
 };
+
+inline ostream& operator<<(ostream& X, const TaskList TL) {TL.save(X); return X;}
+inline istream& operator>>(istream& X, TaskList TL) {if(&X == &cin) TL.typeList(); else if(!TL.read(X)) cerr << "Invalid File!\n"; return X;}
+
 
 class Board {
 private:

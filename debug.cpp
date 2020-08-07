@@ -22,8 +22,8 @@ int main(void) {
     else {
         Task T;
         myfile.open(file_path, fstream::in | fstream::out | fstream::app);
-        if(!T.read(myfile)) cout << "deu errado" << endl;
-        else cout << T << endl;
+        cin >> T;
+        cout << T << endl;
         myfile.close();
     }
 

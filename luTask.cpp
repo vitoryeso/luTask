@@ -75,16 +75,29 @@ void TaskList::addTask() {
     this->tasks.back().typeTask();
 }
 
-void TaskList::printList() const {
-    if(this->tasks.size() == 0) {
-        cerr << "Empty list!\n";
-        return;
+void TaskList::save(ostream& X) const {
+    X << "@media@";
+    for(unsigned i=0; i<tasks.size(); i++) {
+        X << tasks[i];
     }
-    else {
-        for(unsigned i=0; i<this->tasks.size(); i++) {
-            cout << (i + 1) << ": ";
-            this->tasks[i].printTask();
-            cout << endl;    
+    X << "@";
+}
+
+bool TaskList::read(istream& X) {
+    //
+    return true;
+}
+
+void TaskList::typeList() {
+    cerr << "Say how many lists you want add: ";
+    unsigned provint;
+    cin >> provint;
+    if(provint != 0) {
+        Task prov;
+        for(unsigned i=0; i<provint; i++) {
+            tasks.push_back(prov);
+            cout << "Task " << i + 1 << ": ";
+            cin >> tasks.back();
         }
     }
 }
