@@ -1,1 +1,0 @@
-"terminar o i/o do task managger";#luTask;3-8-2020;finished;3-8-2020;

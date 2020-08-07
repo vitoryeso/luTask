@@ -13,7 +13,6 @@
 #include <vector>
 #include <iostream>
 #include <luUtils.h>
-
 using namespace std;
 
 class Task {
@@ -48,12 +47,12 @@ public:
     bool read(istream& X);
 
     //user input options
-    void printTask() const {save(cout);};
+    void printTask() const ;
     void typeTask();
 };
 
-inline ostream& operator<<(ostream& X, const Task& T) {T.save(X); return X;}
-inline istream& operator>>(istream& X, Task& T) {if(&X == &cin) T.typeTask(); else if(!T.read(X)) cerr << "Invalid File!\n"; return X;}
+ostream& operator<<(ostream& X, const Task T);
+istream& operator>>(istream& X, Task& T);
 
 // this class get all tasks pending and finished. the idea is separate pending and finished using sort
 class TaskList {
@@ -73,8 +72,8 @@ public:
     inline void removeTask(const unsigned i) {tasks.erase(tasks.begin() + i);}
     void removeTask();
 
-    void finishTask();
-	inline void finishTask(const unsigned i) {tasks.at(i).finish();}
+    void finishSomeTask();
+	void finishTask(const unsigned i);
     
     void sortByDone();
     //unsigned getLastDone() const;
@@ -86,12 +85,12 @@ public:
     bool read(istream& X);
 
     // user input options
-    void printList() const {save(cout);};
+    void printList() const;
     void typeList();
 };
 
 inline ostream& operator<<(ostream& X, const TaskList TL) {TL.save(X); return X;}
-inline istream& operator>>(istream& X, TaskList TL) {if(&X == &cin) TL.typeList(); else if(!TL.read(X)) cerr << "Invalid File!\n"; return X;}
+inline istream& operator>>(istream& X, TaskList& TL) {if(&X == &cin) TL.typeList(); else if(!TL.read(X)) cerr << "Invalid File!\n"; return X;}
 
 
 class Board {
@@ -99,13 +98,23 @@ private:
     vector<TaskList> lists;
 public:
     
-    inline size_t getNumLists() const {return this->lists.size();}
+    inline unsigned getNumLists() {return lists.size();}
     inline void createList(const string name) {this->lists.push_back(TaskList(name));}
     void createList();
+
     inline void removeList(const unsigned i) {this->lists.erase(lists.begin() + i);}
     void removeList();
+
     inline TaskList& getList(const unsigned i) {return this->lists.at(i);} // returning by reference
     void showLists() const;
+
+    // file utils functions
+    void save(ostream& X) const;
+    bool read(istream& X);
+
+    // write and load from filepath
+    void write(const string filepath) const;
+    bool load(const string filepath);
 };
 
 

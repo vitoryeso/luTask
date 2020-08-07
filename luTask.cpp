@@ -1,5 +1,6 @@
 #include "luTask.h"
 #include <string>
+#include <fstream>
 #include <iostream>
 
 using namespace std;
@@ -50,7 +51,35 @@ void Task::typeTask() {
     this->initDate.setCurrentDate();
 }
 
-void TaskList::finishTask() {
+void Task::printTask() const {
+    cout << "\t\t  ";
+    if(!this->done) cout << "\u25A2";
+    else cout << "\u25A3";
+    cout << " " << this->content << " | " << this->tag << endl;
+}
+
+ostream& operator<<(ostream& X, const Task T) {
+    if(&X != &cout) {
+        T.save(X);
+    } 
+    else T.printTask();
+    return X;
+}
+
+istream& operator>>(istream& X, Task& T) {
+    if(&X != &cin) {
+        if(!T.read(X)) cerr << "Invalid Task File!\n";
+    }
+    else T.typeTask();
+    return X;
+}
+
+void TaskList::finishTask(const unsigned i) {
+    if(i >= this->tasks.size()) cerr << "Wrong index!\n";
+    else this->tasks[i].finish();
+}
+
+void TaskList::finishSomeTask() {
     cerr << "Type the idx of the task to finish: ";
     unsigned i;
     cin >> i;
@@ -76,27 +105,46 @@ void TaskList::addTask() {
 }
 
 void TaskList::save(ostream& X) const {
-    X << "@media@";
+    X << "@" << this->name << ";";
+    X << this->tasks.size() << "@"; 
     for(unsigned i=0; i<tasks.size(); i++) {
-        X << tasks[i];
+        X << this->tasks[i];
     }
     X << "@";
 }
 
 bool TaskList::read(istream& X) {
-    //
+    string prov;
+    getline(X, prov, '@');
+    if(prov != "") return false;
+    getline(X, prov, ';');
+    this->name = prov;
+    unsigned provLen;
+    X >> provLen; /* dont ignore cause we need check if is '@' */
+    getline(X, prov, '@');
+    if(prov != "") return false;
+    Task provTask;
+    for(unsigned i=0; i<provLen; i++) {
+        tasks.push_back(provTask);
+        if(!this->tasks.back().read(X)) return false;
+    }
     return true;
 }
 
 void TaskList::typeList() {
+    cerr << "Type the name of this list of tasks: ";
+    string provname;
+    getline(cin, provname); /* \n is the default delimiter */
+    this->name = provname;
     cerr << "Say how many lists you want add: ";
     unsigned provint;
     cin >> provint;
+    cin.ignore();
     if(provint != 0) {
         Task prov;
         for(unsigned i=0; i<provint; i++) {
             tasks.push_back(prov);
-            cout << "Task " << i + 1 << ": ";
+            cout << "Task " << i + 1 << ": " << endl;
             cin >> tasks.back();
         }
     }
@@ -108,6 +156,15 @@ void TaskList::removeTask() {
     cin >> idx;
     cin.ignore();
     removeTask(idx);
+}
+
+void TaskList::printList() const {
+    cout << "Name: " << this->name << endl;
+    if(this->tasks.size() != 0) {
+        for(unsigned i=0; i<this->tasks.size(); i++) {
+            cout << tasks[i] << endl;
+        }
+    }
 }
 
 void Board::createList() {
@@ -127,7 +184,7 @@ void Board::removeList() {
 
 void Board::showLists() const {
     cout << "@@ BOARD @@\n\t";
-    if(getNumLists() == 0) {
+    if(this->lists.size() == 0) {
         cerr << "Empty board!\n\t";
         return;
     } 
@@ -140,4 +197,53 @@ void Board::showLists() const {
         cout << "list " << this->lists.size() - 1 << ":\n\t\t";
         this->lists[this->lists.size() - 1].printList();
     }
+}
+
+void Board::save(ostream& X) const {
+    unsigned size = this->lists.size();
+    X << "!";
+    if(size != 0) {
+        X << size << "!";
+        for(unsigned i=0; i<size; i++) {
+            X << this->lists[i];
+        }
+        X << "!";
+    }
+    else X << size << "!!";
+}
+
+bool Board::read(istream& X) {
+    string prov;
+    if(!charCheck(X, '!')) return false;
+    unsigned provLen;
+    X >> provLen;
+    if(provLen == 0) {
+        if(!charCheck(X, '!')) return false;
+        if(!charCheck(X, '!')) return false;
+        return true;
+    }
+    else {
+        if(!charCheck(X, '!')) return false;
+        TaskList provTL;
+        for(unsigned i=0; i<provLen; i++) {
+            this->lists.push_back(provTL);
+            if(!this->lists.back().read(X)) return false;
+        } 
+        return true;
+    }
+}
+
+void Board::write(const string filepath) const {
+    fstream provfile;
+    provfile.open(filepath, fstream::out); 
+    this->save(provfile);
+    provfile.close();
+}
+
+bool Board::load(const string filepath) {
+    fstream provfile;
+    provfile.open(filepath, fstream::in);    
+    if(!this->read(provfile)) return false;
+    provfile.close();
+    return true; 
 }

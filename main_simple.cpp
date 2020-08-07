@@ -16,11 +16,40 @@ enum cmd{
 void printOptions();
 unsigned selectList();
 
-int main(void) {
+int main(int argc, char** argv) {
     Board B;
+    string filepath("checkpoint.lu");
+
+    if(argc > 2) {
+        cerr << "Wront parameters!\n";
+        cerr << "You can:\n\tluTask init;\n\tluTask reset;\n";
+        return 0;
+    }
+    if(argc == 2) {
+        string prov("reset");
+        if(argv[1] == prov) {
+            system("rm checkpoint.lu");
+        }
+        else {
+            prov = "init";
+            if(argv[1] == prov) {
+                cerr << "Initializing board\n";
+            }
+        }
+    }
+    else {
+        if(!B.load(filepath)) {
+            cerr << "Reading failed!\n";
+            cerr << "tchau. \n";
+            return 0;
+        }
+        else cerr << "Reading was a sucess!\n";
+    }
+
     bool end=false;
     int cmd;
     unsigned selectedList;
+
     printOptions();
     while(!end) {
         if(B.getNumLists() > 0) B.showLists();
@@ -44,10 +73,11 @@ int main(void) {
                 B.getList(selectedList).removeTask();
                 break;
             case FINISH_TASK:
-                B.getList(selectedList).finishTask();
+                B.getList(selectedList).finishSomeTask();
                 break;
             case EXIT:
                 end=true;
+                B.write(filepath);
                 break;
         }
     }

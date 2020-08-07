@@ -13,17 +13,19 @@ int main(void) {
     cin >> save;
     cin.ignore();
     if(!save) {
-        Task T("terminar o i/o do task managger", "luTask");
-        T.finish();
-        myfile.open(file_path, fstream::in | fstream::out | fstream::app);
-        myfile << T;
+        TaskList TL;
+        myfile.open(file_path, fstream::in | fstream::out);
+        TL.typeList();
+        TL.finishSomeTask();
+        myfile << TL;
         myfile.close();
     }
     else {
-        Task T;
-        myfile.open(file_path, fstream::in | fstream::out | fstream::app);
-        cin >> T;
-        cout << T << endl;
+        TaskList TL;
+        myfile.open(file_path, fstream::in | fstream::out);
+        myfile >> TL;
+        TL.finishSomeTask();
+        cout << TL << endl;
         myfile.close();
     }
 
