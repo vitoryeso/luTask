@@ -52,10 +52,10 @@ void Task::typeTask() {
 }
 
 void Task::printTask() const {
-    cout << "\t\t  ";
+    cout << "\t  ";
     if(!this->done) cout << "\u25A2";
     else cout << "\u25A3";
-    cout << " " << this->content << " | " << this->tag << endl;
+    cout << " " << this->content << " | " << this->tag;
 }
 
 ostream& operator<<(ostream& X, const Task T) {
@@ -158,8 +158,11 @@ void TaskList::removeTask() {
     removeTask(idx);
 }
 
-void TaskList::printList() const {
-    cout << "Name: " << this->name << endl;
+void TaskList::printList(bool selected) const {
+    if(!selected) cout << "\tName: " << this->name << endl;
+    else {
+        cout << "      =>Name: " << this->name << endl;
+    }
     if(this->tasks.size() != 0) {
         for(unsigned i=0; i<this->tasks.size(); i++) {
             cout << tasks[i] << endl;
@@ -182,20 +185,18 @@ void Board::removeList() {
     removeList(idx);
 }
 
-void Board::showLists() const {
-    cout << "@@ BOARD @@\n\t";
+void Board::showLists(unsigned selectedList) const {
+    cout << "@@ BOARD @@\n";
     if(this->lists.size() == 0) {
         cerr << "Empty board!\n\t";
         return;
     } 
     else {
-        for(unsigned i=0; i<this->lists.size() - 1; i++){
-            cout << "list " << (i + 1) << ":\n\t\t";
-            this->lists[i].printList();
-            cout << endl;
+        for(unsigned i=0; i<this->lists.size(); i++){
+            if(i != selectedList) this->lists[i].printList();
+            else this->lists[i].printList(true);
+            if(i != this->lists.size() - 1) cout << endl;
         }
-        cout << "list " << this->lists.size() - 1 << ":\n\t\t";
-        this->lists[this->lists.size() - 1].printList();
     }
 }
 

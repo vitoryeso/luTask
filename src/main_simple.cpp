@@ -18,7 +18,7 @@ unsigned selectList();
 
 int main(int argc, char** argv) {
     Board B;
-    string filepath("checkpoint.lu");
+    string filepath("/home/yes0/repos/luTask/checkpoint.lu");
 
     if(argc > 2) {
         cerr << "Wront parameters!\n";
@@ -48,11 +48,11 @@ int main(int argc, char** argv) {
 
     bool end=false;
     int cmd;
-    unsigned selectedList;
+    unsigned selectedList(0);
 
     printOptions();
     while(!end) {
-        if(B.getNumLists() > 0) B.showLists();
+        if(B.getNumLists() > 0) B.showLists(selectedList);
         cerr << "Type the option: ";
         cin >> cmd;
         cin.ignore();

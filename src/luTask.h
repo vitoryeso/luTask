@@ -85,7 +85,7 @@ public:
     bool read(istream& X);
 
     // user input options
-    void printList() const;
+    void printList(bool selected=false) const;
     void typeList();
 };
 
@@ -106,7 +106,7 @@ public:
     void removeList();
 
     inline TaskList& getList(const unsigned i) {return this->lists.at(i);} // returning by reference
-    void showLists() const;
+    void showLists(const unsigned selectedList) const;
 
     // file utils functions
     void save(ostream& X) const;
