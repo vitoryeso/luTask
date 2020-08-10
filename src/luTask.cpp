@@ -128,6 +128,7 @@ bool TaskList::read(istream& X) {
         tasks.push_back(provTask);
         if(!this->tasks.back().read(X)) return false;
     }
+    X.ignore();
     return true;
 }
 
@@ -165,7 +166,7 @@ void TaskList::printList(bool selected) const {
     }
     if(this->tasks.size() != 0) {
         for(unsigned i=0; i<this->tasks.size(); i++) {
-            cout << tasks[i] << endl;
+            cout << i << tasks[i] << endl;
         }
     }
 }
