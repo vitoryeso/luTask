@@ -63,19 +63,23 @@ public:
 	TaskList(): name("") {};
     TaskList(const string name) {this->name=name;}
 
+    inline unsigned getSize() const {return this->tasks.size();}
     inline string getName() const {return this->name;}
     inline Task& getTask(const unsigned i) {return this->tasks.at(i);} // returning by reference
 
 	inline void addTask(const string content, const string tag) {tasks.push_back(Task(content, tag));}
     void addTask();
+    void addTask(Task T);
 
     inline void removeTask(const unsigned i) {tasks.erase(tasks.begin() + i);}
     void removeTask();
 
     void finishSomeTask();
-	void finishTask(const unsigned i);
+	Task finishTask(const unsigned i);
     
-    void sortByDone();
+    /* sort by done return the index of the first pending task */
+    int sortByDone();
+    TaskList returnDones();
     //unsigned getLastDone() const;
     //void sortByTag();
     //void sortByInitDate();    
@@ -96,8 +100,10 @@ inline istream& operator>>(istream& X, TaskList& TL) {if(&X == &cin) TL.typeList
 class Board {
 private:
     vector<TaskList> lists;
+    TaskList dones;
 public:
     
+    inline TaskList& getDones() {return dones;}
     inline unsigned getNumLists() {return lists.size();}
     inline void createList(const string name) {this->lists.push_back(TaskList(name));}
     void createList();
@@ -107,6 +113,9 @@ public:
 
     inline TaskList& getList(const unsigned i) {return this->lists.at(i);} // returning by reference
     void showLists(const unsigned selectedList) const;
+    
+    void finishTask(const unsigned selectedList, const unsigned selectedTask);
+    void finishSomeTask(const unsigned selectedList);
 
     // file utils functions
     void save(ostream& X) const;

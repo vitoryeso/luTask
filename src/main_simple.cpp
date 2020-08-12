@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
                 B.getList(selectedList).removeTask();
                 break;
             case FINISH_TASK:
-                B.getList(selectedList).finishSomeTask();
+                B.finishSomeTask(selectedList);
                 break;
             case EXIT:
                 end=true;

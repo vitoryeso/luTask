@@ -74,9 +74,15 @@ istream& operator>>(istream& X, Task& T) {
     return X;
 }
 
-void TaskList::finishTask(const unsigned i) {
+Task TaskList::finishTask(const unsigned i) {
+    Task T;
     if(i >= this->tasks.size()) cerr << "Wrong index!\n";
-    else this->tasks[i].finish();
+    else {
+        this->tasks[i].finish();
+        T = this->tasks[i];
+        this->tasks.erase(tasks.begin() + i);
+    }
+    return T;
 }
 
 void TaskList::finishSomeTask() {
@@ -87,7 +93,7 @@ void TaskList::finishSomeTask() {
     cin.ignore();
 }
 
-void TaskList::sortByDone() {
+int TaskList::sortByDone() {
     for(unsigned i=1; i<this->tasks.size(); i++) {
         int j = i - 1;
         while(tasks[i].isDone() < tasks[j].isDone() && j >=0) {
@@ -96,6 +102,24 @@ void TaskList::sortByDone() {
         } 
         if(tasks[i].isDone() != tasks[j + 1].isDone()) tasks[j + 1] = tasks[i]; 
     }
+    for(int i=0; i<(int)this->tasks.size(); i++) {
+        if(!tasks[i].isDone()) return i;
+    }
+    return (int)tasks.size();
+}
+
+TaskList TaskList::returnDones() {
+    TaskList TL;
+    for(unsigned i=0; i<this->tasks.size(); i++) {
+        if(tasks[i].isDone()) {
+            TL.addTask(tasks[i]);
+        }
+    }
+    return TL;
+}
+
+void TaskList::addTask(Task T) {
+    this->tasks.push_back(T);
 }
 
 void TaskList::addTask() {
@@ -186,6 +210,23 @@ void Board::removeList() {
     removeList(idx);
 }
 
+void Board::finishSomeTask(const unsigned selectedList) {
+    cerr << "Type the idx of the task to finish: ";
+    unsigned i;
+    cin >> i;
+    finishTask(selectedList, i);
+    cin.ignore();
+}
+
+void Board::finishTask(const unsigned selectedList, const unsigned selectedTask) {
+    if(selectedList < this->lists.size()) {
+        if(selectedTask < this->lists[selectedList].getSize()) {
+            this->dones.addTask(this->lists[selectedList].finishTask(selectedTask)); 
+            return;
+        }
+    }
+}
+
 void Board::showLists(unsigned selectedList) const {
     cout << "@@ BOARD @@\n";
     if(this->lists.size() == 0) {
@@ -198,6 +239,7 @@ void Board::showLists(unsigned selectedList) const {
             else this->lists[i].printList(true);
             if(i != this->lists.size() - 1) cout << endl;
         }
+        this->dones.printList();
     }
 }
 
@@ -209,6 +251,7 @@ void Board::save(ostream& X) const {
         for(unsigned i=0; i<size; i++) {
             X << this->lists[i];
         }
+        X << this->dones;
         X << "!";
     }
     else X << size << "!!";
@@ -230,7 +273,8 @@ bool Board::read(istream& X) {
         for(unsigned i=0; i<provLen; i++) {
             this->lists.push_back(provTL);
             if(!this->lists.back().read(X)) return false;
-        } 
+        }
+        if(!this->dones.read(X)) return false;
         return true;
     }
 }
