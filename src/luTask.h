@@ -67,6 +67,8 @@ public:
     inline string getName() const {return this->name;}
     inline Task& getTask(const unsigned i) {return this->tasks.at(i);} // returning by reference
 
+    inline void setName(const string name) {this->name = name;}
+
 	inline void addTask(const string content, const string tag) {tasks.push_back(Task(content, tag));}
     void addTask();
     void addTask(Task T);

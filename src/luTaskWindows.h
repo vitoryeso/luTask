@@ -17,6 +17,7 @@ public:
 
     /* print tasks by the selected reference */
     void print(unsigned selectedTask, TaskList& TL, bool watch) const;
+    void printEmpty() const;
 
     inline void erase() {werase(curWin);}
 };
@@ -36,6 +37,7 @@ private:
 public:
     BoardWin(WINDOW* standard, Board& B); 
 
+    inline void write(string filepath) const {B.write(filepath);}
     /* for input window, init screen make the border. just init a window */
     void initInputWin();
 
@@ -48,9 +50,14 @@ public:
     /* show input window, get task, add task and hide input window */
     void addTask();
 
+    void addList();
+
+    void renameTask();
+    void renameList();
+
     void printInfoWin();
     inline void printDoneWin() {doneWin.print(selectedDoneTask, B.getDones(), !listOrDones);}
-    inline void printListWin() {listWin.print(selectedListTask, B.getList(selectedList), listOrDones);}
+    void printListWin(); //{listWin.print(selectedListTask, B.getList(selectedList), listOrDones);}
 
     /* get user input from the current window, make changes in the object and prints all the content.
      * returns the same integer returned by the wgetch function. */

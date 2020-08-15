@@ -5,30 +5,43 @@ TaskWin::TaskWin(WINDOW* standard) {
     getmaxyx(curWin, yMax, xMax);    
 }
 
-void TaskWin::print(unsigned selectedTask, TaskList& TL, bool watch) const {
-    /* we can print task in cursors with Y_position between 1 and (yMax - 1) */
-    unsigned realHeight = yMax - 2;
+void TaskWin::printEmpty() const {
+    wborder(curWin, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK);
+    wrefresh(curWin);
+}
 
-    /* we can print all tasks with no problems */
-    if(TL.getSize() <= realHeight) {
-        for(unsigned i=0; i<TL.getSize(); i++) {
-            wmove(curWin, i + 1, 1);
-            if(i == selectedTask && watch) wattron(curWin, A_REVERSE);
-            wprintw(curWin, TL.getTask(i).getContent().c_str());
-            wattroff(curWin, A_REVERSE);
+void TaskWin::print(unsigned selectedTask, TaskList& TL, bool watch) const {
+    if(TL.getSize() > 0) {
+        /* we can print task in cursors with Y_position between 1 and (yMax - 1) */
+        unsigned realHeight = yMax - 2;
+
+        /* we can print all tasks with no problems */
+        if(TL.getSize() <= realHeight) {
+            for(unsigned i=0; i<TL.getSize(); i++) {
+                wmove(curWin, i + 1, 1);
+                if(i == selectedTask && watch) wattron(curWin, A_REVERSE);
+                wprintw(curWin, TL.getTask(i).getContent().c_str());
+                wattroff(curWin, A_REVERSE);
+            }
         }
-    }
-    else {
-        /* printing in reversed direction from selectedTask*/
-        unsigned diff(selectedTask - realHeight);
-        for(unsigned i=selectedTask; i>diff; i--) {
-            wmove(curWin, realHeight + 1 - (selectedTask - i), 1);
-            if(i == selectedTask && watch) wattron(curWin, A_REVERSE);
-            wprintw(curWin, TL.getTask(i).getContent().c_str());
-            wattroff(curWin, A_REVERSE);
+        else {
+            /* printing in reversed direction from selectedTask*/
+            unsigned diff(selectedTask - realHeight);
+            for(unsigned i=selectedTask; i>diff; i--) {
+                wmove(curWin, realHeight + 1 - (selectedTask - i), 1);
+                if(i == selectedTask && watch) wattron(curWin, A_REVERSE);
+                wprintw(curWin, TL.getTask(i).getContent().c_str());
+                wattroff(curWin, A_REVERSE);
+            }
         }
     }
     wborder(curWin, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK);
+    wrefresh(curWin);
+    string name(TL.getName());
+    unsigned provx = (xMax/2) - name.length()/2;
+    wattron(curWin, A_REVERSE);
+    mvwprintw(curWin, yMax -1, provx, name.c_str());
+    wattroff(curWin, A_REVERSE);
     wrefresh(curWin);
 }
 
@@ -88,8 +101,8 @@ void BoardWin::drawInputBox(string title) {
 string BoardWin::getData(string title) {
     string data;
     drawInputBox(title);
-    unsigned boxWidth;
-    getmaxyx(inputWin, boxWidth, boxWidth);
+    unsigned boxWidth, boxHeight;
+    getmaxyx(inputWin, boxHeight, boxWidth);
 
     /* the user start typing here */
     int c(0), x(1), y(1);
@@ -97,25 +110,32 @@ string BoardWin::getData(string title) {
     wmove(inputWin, 1, x++);
     while((c = wgetch(inputWin)) != 10) {
         getyx(inputWin, y, x);
-        if(x >= boxWidth - 1) wmove(inputWin, 1, x - 1);
-        else if(c == 127) {
-            if(data.length() > 0) {
-                /* erase backspace and the last char */
-               // data.pop_back();
-                data.pop_back();
+        if(x >= boxWidth - 2 && c != 127) {
+            werase(inputWin);
+            drawInputBox(title);
+            wmove(inputWin, 1, 1);
+            wprintw(inputWin, data.c_str());
+        } 
+        else {
+            if(c == 127) {
+                if(data.length() > 0) {
+                    /* erase backspace and the last char */
+                   // data.pop_back();
+                    data.pop_back();
+                    werase(inputWin);
+                    drawInputBox(title);
+                    wmove(inputWin, 1, 1);
+                    wprintw(inputWin, data.c_str());
+                }
+            }
+            else {
+                /* append char to string */
+                data += c;
                 werase(inputWin);
                 drawInputBox(title);
                 wmove(inputWin, 1, 1);
                 wprintw(inputWin, data.c_str());
             }
-        }
-        else {
-            /* append char to string */
-            data += c;
-            werase(inputWin);
-            drawInputBox(title);
-            wmove(inputWin, 1, 1);
-            wprintw(inputWin, data.c_str());
         }
     }
     return data;
@@ -128,9 +148,28 @@ void BoardWin::addTask() {
     B.getList(selectedList).addTask(provContent, provTag);
 }
 
+void BoardWin::renameTask() {
+    string provContent;
+    provContent = getData("content: ");
+    B.getList(selectedList).getTask(selectedListTask).setContent(provContent);
+}
+
+void BoardWin::addList() {
+    string provName;
+    provName = getData("name: ");
+    B.createList(provName);  
+    selectedList = B.getNumLists() - 1;
+}
+
+void BoardWin::renameList() {
+    string provName;
+    provName = getData("name: ");
+    B.getList(selectedList).setName(provName);
+}
+
 void BoardWin::initInfoWin() {
     unsigned infoWinHeight = (yMax*0.25);
-    infoWin = newwin(infoWinHeight, xMax - 2, yMax - infoWinHeight, 1); 
+    infoWin = newwin(infoWinHeight, xMax - 3, yMax - infoWinHeight, 1); 
     refresh();
 
     wborder(infoWin, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK);
@@ -150,7 +189,7 @@ WINDOW* BoardWin::initListWin() {
 }
 
 void BoardWin::printInfoWin() {
-    if(!listOrDones) {
+    if(!listOrDones && B.getDones().getSize() > 0) {
         Task T = B.getDones().getTask(selectedDoneTask);
         wmove(infoWin, 1, 1);
         wprintw(infoWin, T.getContent().c_str()); 
@@ -161,7 +200,7 @@ void BoardWin::printInfoWin() {
         wmove(infoWin, 4, 1);
         wprintw(infoWin, ("Finish Date: " + T.getFinishDate().getStr()).c_str());
     }
-    else {
+    else if(B.getList(selectedList).getSize() > 0) {
         Task T = B.getList(selectedList).getTask(selectedListTask);
         wmove(infoWin, 1, 1);
         wprintw(infoWin, T.getContent().c_str()); 
@@ -172,6 +211,15 @@ void BoardWin::printInfoWin() {
     }
     wborder(infoWin, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK);
     wrefresh(infoWin);
+}
+
+void BoardWin::printListWin() {
+    if(B.getNumLists() > 0) {
+        listWin.print(selectedListTask, B.getList(selectedList), listOrDones); 
+    }
+    else {
+        listWin.printEmpty();
+    }
 }
 
 int BoardWin::boardGetch() {
@@ -223,10 +271,44 @@ int BoardWin::boardGetch() {
             addTask();
             break;
 
+        case 65: //A
+            addList();
+            break;
+
+        case 100: //d
+            if(listOrDones && B.getList(selectedList).getSize() > 0) { 
+                B.getList(selectedList).removeTask(selectedListTask);
+                if(selectedListTask > 0) selectedListTask--;
+            }
+            else if(B.getDones().getSize() > 0) {
+                B.getDones().removeTask(selectedDoneTask);
+                if(selectedDoneTask > 0) selectedDoneTask--;
+            }
+            break;
+
+        case 68: //D
+            if(listOrDones && B.getNumLists() > 0) {
+                B.removeList(selectedList);
+                if(selectedList > 0) selectedList--;
+            }
+            break;
+
+        case 114: //r
+            if(listOrDones && B.getNumLists() > 0 && B.getList(selectedList).getSize() > 0) {
+                renameTask();
+            }
+            break;
+
+        case 82: //R
+            if(listOrDones && B.getNumLists() > 0) {
+                renameList();
+            }
+            break;
+
         case 10: // Enter
-            if(listOrDones) {
+            if(listOrDones && B.getList(selectedList).getSize() > 0) {
                 B.finishTask(selectedList, selectedListTask);
-                selectedListTask--;
+                if(selectedListTask > 0) selectedListTask--;
             }
             break;
 

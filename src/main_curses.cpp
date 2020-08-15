@@ -21,7 +21,8 @@ int main(int argc, char** argv) {
      */
 
     Board B;
-    if(!B.load("checkpoint.lu")) {
+    string filepath("checkpoint.lu");
+    if(!B.load(filepath)) {
         cout << "fail!" << endl;
         return -1;
     }
@@ -32,6 +33,7 @@ int main(int argc, char** argv) {
     while((c = BW.boardGetch()) != 27) {
         refresh();   
     }
+    BW.write(filepath);
 
     endwin();
 }
