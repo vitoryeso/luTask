@@ -24,6 +24,7 @@ public:
 class BoardWin {
 private:
     WINDOW* infoWin;
+    WINDOW* inputWin;
     TaskWin listWin, doneWin;
     Board B;
     unsigned xMax, yMax;
@@ -35,9 +36,17 @@ private:
 public:
     BoardWin(WINDOW* standard, Board& B); 
 
+    /* for input window, init screen make the border. just init a window */
+    void initInputWin();
+
     void initInfoWin();
     WINDOW* initDoneWin();
     WINDOW* initListWin();
+
+    void drawInputBox(string title);
+    string getData(string title);
+    /* show input window, get task, add task and hide input window */
+    void addTask();
 
     void printInfoWin();
     inline void printDoneWin() {doneWin.print(selectedDoneTask, B.getDones(), !listOrDones);}

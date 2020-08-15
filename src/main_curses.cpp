@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
     refresh();
 
     int c;
-    while((c = BW.boardGetch()) != 10) {
+    while((c = BW.boardGetch()) != 27) {
         refresh();   
     }
 

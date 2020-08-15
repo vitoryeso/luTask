@@ -40,6 +40,7 @@ BoardWin::BoardWin(WINDOW* standard, Board& B) {
     listOrDones = true;
     getmaxyx(standard, yMax, xMax);
     initInfoWin();
+    initInputWin();
     doneWin = TaskWin(initDoneWin());
     listWin = TaskWin(initListWin()); 
 
@@ -61,6 +62,70 @@ WINDOW* BoardWin::initDoneWin() {
     wrefresh(doneWin);
 
     return doneWin;
+}
+
+void BoardWin::initInputWin() {
+    unsigned width = (xMax*0.5);
+    inputWin = newwin(3, width, (unsigned)yMax*0.3, (unsigned)xMax*0.24);
+    refresh();
+}
+
+void BoardWin::drawInputBox(string title) {
+    werase(inputWin);
+    wborder(inputWin, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK);
+    wrefresh(inputWin);
+    /* getting box values */
+    unsigned boxWidth, boxHeight;
+    getmaxyx(inputWin, boxHeight, boxWidth);
+
+    /* printing box "name" */
+    wmove(inputWin, 0, (unsigned)boxWidth/2 - title.length());
+    wattron(inputWin, A_REVERSE);
+    wprintw(inputWin, title.c_str());
+    wattroff(inputWin, A_REVERSE);
+}
+
+string BoardWin::getData(string title) {
+    string data;
+    drawInputBox(title);
+    unsigned boxWidth;
+    getmaxyx(inputWin, boxWidth, boxWidth);
+
+    /* the user start typing here */
+    int c(0), x(1), y(1);
+    string  prov("");
+    wmove(inputWin, 1, x++);
+    while((c = wgetch(inputWin)) != 10) {
+        getyx(inputWin, y, x);
+        if(x >= boxWidth - 1) wmove(inputWin, 1, x - 1);
+        else if(c == 127) {
+            if(data.length() > 0) {
+                /* erase backspace and the last char */
+               // data.pop_back();
+                data.pop_back();
+                werase(inputWin);
+                drawInputBox(title);
+                wmove(inputWin, 1, 1);
+                wprintw(inputWin, data.c_str());
+            }
+        }
+        else {
+            /* append char to string */
+            data += c;
+            werase(inputWin);
+            drawInputBox(title);
+            wmove(inputWin, 1, 1);
+            wprintw(inputWin, data.c_str());
+        }
+    }
+    return data;
+}
+
+void BoardWin::addTask() {
+    string provContent, provTag;
+    provContent = getData("content: ");
+    provTag = getData("Tag: ");
+    B.getList(selectedList).addTask(provContent, provTag);
 }
 
 void BoardWin::initInfoWin() {
@@ -154,11 +219,20 @@ int BoardWin::boardGetch() {
             if(listOrDones) listOrDones = false;
             break;
 
+        case 97: //a
+            addTask();
+            break;
+
+        case 10: // Enter
+            if(listOrDones) {
+                B.finishTask(selectedList, selectedListTask);
+                selectedListTask--;
+            }
+            break;
+
         default:
             break;
     }
-    wmove(infoWin, 7, 20);
-    wprintw(infoWin, "selectedList: %d, selectedListTask: %d, selectedDoneTask: %d, listOrDones: %d", selectedList, selectedListTask, selectedDoneTask, listOrDones);
     doneWin.erase();
     printDoneWin();
     listWin.erase();
