@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
      */
 
     Board B;
-    string filepath("checkpoint.lu");
+    string filepath("checkpoint");
     if(!B.load(filepath)) {
         cout << "fail!" << endl;
         return -1;

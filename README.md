@@ -1,8 +1,8 @@
 # luTask
-## Simple task lists implemented in C++
+## Simple list-making program implemented in C++
 
 ### Requirements
-ncurses and standard c++ libraries
+ncurses and standard C++ libraries
 
 ### Usage
 
