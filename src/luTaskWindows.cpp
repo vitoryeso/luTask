@@ -195,6 +195,7 @@ string BoardWin::getData(string title) {
     string  prov("");
     wmove(inputWin, 1, x++);
     while((c = wgetch(inputWin)) != 10) {
+        if(c == 27) return "";
         getyx(inputWin, y, x);
         if(x >= boxWidth - 2 && c != 127) {
             werase(inputWin);
@@ -230,7 +231,9 @@ string BoardWin::getData(string title) {
 void BoardWin::addTask() {
     string provContent, provTag;
     provContent = getData("content: ");
+    if(provContent == "") return;
     provTag = getData("Tag: ");
+    if(provTag == "") return;
     B.getList(selectedList).addTask(provContent, provTag);
 }
 
