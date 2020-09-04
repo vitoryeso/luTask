@@ -240,12 +240,14 @@ void BoardWin::addTask() {
 void BoardWin::renameTask() {
     string provContent;
     provContent = getData("content: ");
+    if(provContent == "") return;
     B.getList(selectedList).getTask(selectedListTask).setContent(provContent);
 }
 
 void BoardWin::addList() {
     string provName;
     provName = getData("name: ");
+    if(provName == "") return;
     B.createList(provName);  
     selectedList = B.getNumLists() - 1;
 }
@@ -253,6 +255,7 @@ void BoardWin::addList() {
 void BoardWin::renameList() {
     string provName;
     provName = getData("name: ");
+    if(provName == "") return;
     B.getList(selectedList).setName(provName);
 }
 
