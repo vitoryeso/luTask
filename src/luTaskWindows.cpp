@@ -10,17 +10,27 @@ void TaskWin::printEmpty() const {
     wrefresh(curWin);
 }
 
-void TaskWin::print(unsigned selectedTask, TaskList& TL, bool watch) const {
-    if(TL.getSize() > 0) {
+void TaskWin::print(unsigned selectedTask, unsigned selectedList, Board &B, bool watch, bool dones=false) const {
+    unsigned size;
+    if(!dones) {
+        size = B.getList(selectedList).getSize();
+    }
+    else size = B.getDones().getSize(); 
+    if(size > 0) {
         /* we can print task in cursors with Y_position between 1 and (yMax - 1) */
         unsigned realHeight = yMax - 2;
 
         /* we can print all tasks with no problems */
-        if(TL.getSize() <= realHeight) {
-            for(unsigned i=0; i<TL.getSize(); i++) {
+        if(size <= realHeight) {
+            for(unsigned i=0; i<size; i++) {
                 wmove(curWin, i + 1, 1);
                 if(i == selectedTask && watch) wattron(curWin, A_REVERSE);
-                wprintw(curWin, TL.getTask(i).getContent().c_str());
+                if(!dones) {
+                    wprintw(curWin, B.getList(selectedList).getTask(i).getContent().c_str());
+                }
+                else {
+                    wprintw(curWin, B.getDones().getTask(i).getContent().c_str());
+                }
                 wattroff(curWin, A_REVERSE);
             }
         }
@@ -30,14 +40,26 @@ void TaskWin::print(unsigned selectedTask, TaskList& TL, bool watch) const {
             for(unsigned i=selectedTask; i>diff; i--) {
                 wmove(curWin, realHeight + 1 - (selectedTask - i), 1);
                 if(i == selectedTask && watch) wattron(curWin, A_REVERSE);
-                wprintw(curWin, TL.getTask(i).getContent().c_str());
+                if(!dones) {
+                    wprintw(curWin, B.getList(selectedList).getTask(i).getContent().c_str());
+                }
+                else {
+                    wprintw(curWin, B.getDones().getTask(i).getContent().c_str());
+                }
                 wattroff(curWin, A_REVERSE);
             }
         }
     }
     wborder(curWin, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK);
     wrefresh(curWin);
-    string name(TL.getName());
+    string name(">");
+    if(dones) {
+        name += B.getDones().getName();
+    }
+    else {
+        name += B.getList(selectedList).getName() + " ";
+        name += to_string(selectedList + 1) + "/" + to_string(B.getNumLists());
+    }
     unsigned provx = (xMax/2) - name.length()/2;
     wattron(curWin, A_REVERSE);
     mvwprintw(curWin, yMax -1, provx, name.c_str());
@@ -75,6 +97,70 @@ WINDOW* BoardWin::initDoneWin() {
     wrefresh(doneWin);
 
     return doneWin;
+}
+
+void BoardWin::initConfirmWin(unsigned W) {
+    confirmWin = newwin(8, W, 10, int(xMax/2 - W/2));
+    refresh();
+}
+
+void BoardWin::drawConfirmWin(string title, bool selectedOption) {
+    werase(confirmWin);
+    wborder(confirmWin, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK, ACS_BLOCK);
+    wrefresh(confirmWin);
+    
+    /* getting box values */
+    unsigned boxWidth, boxHeight;
+    getmaxyx(confirmWin, boxHeight, boxWidth);
+    
+    string prov("");
+    prov = "delete \"" + title + "\"?";
+    wmove(confirmWin, 1, 9);
+    wattron(confirmWin, A_UNDERLINE);
+    wprintw(confirmWin, prov.c_str());
+    wattroff(confirmWin, A_UNDERLINE);
+    wrefresh(confirmWin);
+
+    if(selectedOption) {
+        wattron(confirmWin, A_REVERSE);
+        wmove(confirmWin, boxHeight - 3, 4);
+        wprintw(confirmWin, "yes");
+        wattroff(confirmWin, A_REVERSE);
+        wmove(confirmWin, boxHeight - 3, boxWidth - 6);
+        wprintw(confirmWin, "no");
+    }
+    else {
+        wattron(confirmWin, A_REVERSE);
+        wmove(confirmWin, boxHeight - 3, boxWidth - 6);
+        wprintw(confirmWin, "no");
+        wattroff(confirmWin, A_REVERSE);
+        wmove(confirmWin, boxHeight - 3, 4);
+        wprintw(confirmWin, "yes");
+    }
+    wrefresh(confirmWin);
+}
+
+bool BoardWin::confirmDelete(bool listOrTask) {
+    bool selectedOption(1); 
+    string title;
+    char c;
+
+    /* if is list then true. if is task then false */
+    if(!listOrTask) {
+        title = B.getList(selectedList).getTask(selectedListTask).getContent();
+    }
+    else title = B.getList(selectedList).getName();
+
+    initConfirmWin(title.length() + 26);
+    drawConfirmWin(title, selectedOption);
+    wrefresh(confirmWin);
+    while((c = wgetch(confirmWin)) != 10) {
+        if(c == 104) selectedOption = !selectedOption;
+        if(c == 108) selectedOption = !selectedOption;
+        werase(confirmWin);
+        drawConfirmWin(title, selectedOption);
+    }
+    return selectedOption;
 }
 
 void BoardWin::initInputWin() {
@@ -215,7 +301,7 @@ void BoardWin::printInfoWin() {
 
 void BoardWin::printListWin() {
     if(B.getNumLists() > 0) {
-        listWin.print(selectedListTask, B.getList(selectedList), listOrDones); 
+        listWin.print(selectedListTask, selectedList, B, listOrDones); 
     }
     else {
         listWin.printEmpty();
@@ -276,20 +362,24 @@ int BoardWin::boardGetch() {
             break;
 
         case 100: //d
-            if(listOrDones && B.getList(selectedList).getSize() > 0) { 
-                B.getList(selectedList).removeTask(selectedListTask);
-                if(selectedListTask > 0) selectedListTask--;
-            }
-            else if(B.getDones().getSize() > 0) {
-                B.getDones().removeTask(selectedDoneTask);
-                if(selectedDoneTask > 0) selectedDoneTask--;
+            if(confirmDelete(0)) {
+                if(listOrDones && B.getList(selectedList).getSize() > 0) { 
+                    B.getList(selectedList).removeTask(selectedListTask);
+                    if(selectedListTask > 0) selectedListTask--;
+                }
+                else if(B.getDones().getSize() > 0) {
+                    B.getDones().removeTask(selectedDoneTask);
+                    if(selectedDoneTask > 0) selectedDoneTask--;
+                }
             }
             break;
 
         case 68: //D
-            if(listOrDones && B.getNumLists() > 0) {
-                B.removeList(selectedList);
-                if(selectedList > 0) selectedList--;
+            if(confirmDelete(1)) {
+                if(listOrDones && B.getNumLists() > 0) {
+                    B.removeList(selectedList);
+                    if(selectedList > 0) selectedList--;
+                }
             }
             break;
 

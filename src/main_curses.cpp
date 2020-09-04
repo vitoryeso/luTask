@@ -6,6 +6,7 @@
 int main(int argc, char** argv) {
     initscr(); 
     noecho();
+    curs_set(0);
 
     /* input window: initially is invisible. its be on center of the screen and gets inputs like new list names, task contents and tags */
     /* list window: show all pending tasks of a list. show only the begin os task contents. 3 windows list. */

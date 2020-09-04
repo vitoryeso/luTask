@@ -16,7 +16,7 @@ public:
     inline int TaskWinGetch() {return wgetch(curWin);}
 
     /* print tasks by the selected reference */
-    void print(unsigned selectedTask, TaskList& TL, bool watch) const;
+    void print(unsigned selectedTask, unsigned selectedList, Board &B, bool watch, bool dones) const;
     void printEmpty() const;
 
     inline void erase() {werase(curWin);}
@@ -26,6 +26,7 @@ class BoardWin {
 private:
     WINDOW* infoWin;
     WINDOW* inputWin;
+    WINDOW* confirmWin;
     TaskWin listWin, doneWin;
     Board B;
     unsigned xMax, yMax;
@@ -37,27 +38,38 @@ private:
 public:
     BoardWin(WINDOW* standard, Board& B); 
 
+    /* ### CONFIRMATION WINDOW ### */
+    /* this window confirm if user really want delete a task or list */
+    void initConfirmWin(unsigned W);
+    void drawConfirmWin(string title, bool selectedOption);
+    bool confirmDelete(bool listOrTask);
+
     inline void write(string filepath) const {B.write(filepath);}
-    /* for input window, init screen make the border. just init a window */
-    void initInputWin();
 
-    void initInfoWin();
-    WINDOW* initDoneWin();
-    WINDOW* initListWin();
-
+    /* ### INPUT WINDOW ### */
+    void initInputWin();/* for input window, init screen make the border. just init a window */
     void drawInputBox(string title);
     string getData(string title);
+
+    /* ### INFORMATION WINDOW ### */
+    void initInfoWin();
+    void printInfoWin();
+
+    /* ### DONES WINDOW ### */
+    WINDOW* initDoneWin();
+    inline void printDoneWin() {doneWin.print(selectedDoneTask, selectedList, B, !listOrDones, true);}
+
+    /* ### LISTS WINDOW ### */
+    WINDOW* initListWin();
+    void printListWin();
+
     /* show input window, get task, add task and hide input window */
     void addTask();
-
     void addList();
 
     void renameTask();
     void renameList();
 
-    void printInfoWin();
-    inline void printDoneWin() {doneWin.print(selectedDoneTask, B.getDones(), !listOrDones);}
-    void printListWin(); //{listWin.print(selectedListTask, B.getList(selectedList), listOrDones);}
 
     /* get user input from the current window, make changes in the object and prints all the content.
      * returns the same integer returned by the wgetch function. */
