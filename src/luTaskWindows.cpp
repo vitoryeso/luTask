@@ -354,11 +354,15 @@ int BoardWin::boardGetch() {
             break;
 
         case 97: //a
+            curs_set(2);
             addTask();
+            curs_set(0);
             break;
 
         case 65: //A
+            curs_set(2);
             addList();
+            curs_set(0);
             break;
 
         case 100: //d
