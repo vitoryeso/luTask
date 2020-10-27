@@ -1,4 +1,5 @@
 # luTask
+![luTask](./readme_imgs/lutask.png)
 ## Simple list-making program implemented in C++
 
 ### Requirements
